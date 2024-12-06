@@ -1,36 +1,71 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Next.js Middleware Authentication Demo
 
-## Getting Started
+このプロジェクトは、Next.jsのミドルウェア機能を使用した認証システムのデモンストレーションです。
 
-First, run the development server:
+## 機能概要
+
+- ミドルウェアを使用した認証制御
+- 保護されたルート（`/blog`）へのアクセス制御
+- クッキーベースの認証状態管理
+- ログイン/ログアウト機能
+
+## セットアップ
+
+必要なパッケージをインストールします：
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+bun add js-cookie react-hot-toast @heroicons/react
+bun add -d @types/js-cookie
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## ミドルウェアの実装について
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+このデモでは、`middleware.ts`を使用して以下の認証制御を実装しています：
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 1. 認証チェック
 
-## Learn More
+- すべての保護されたルート（`/blog`）へのアクセスは認証が必要
+- 未認証ユーザーは自動的にログインページにリダイレクト
+- 認証済みユーザーがログインページにアクセスした場合は、ブログページにリダイレクト
 
-To learn more about Next.js, take a look at the following resources:
+### 2. 実装の詳細
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```typescript
+// middleware.tsの主要な機能
+- クッキーから認証トークンを確認
+- パスに基づいた条件分岐
+- 適切なリダイレクト処理
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 3. ミドルウェアの設定
 
-## Deploy on Vercel
+```typescript
+export const config = {
+  matcher: ['/blog/:path*', '/login']
+}
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+このmatcher設定により、ミドルウェアは以下のパスでのみ実行されます：
+- `/blog`とその配下のすべてのパス
+- `/login`ページ
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 認証フロー
+
+1. 未認証ユーザーが保護されたページ（`/blog`）にアクセス → ログインページへリダイレクト
+2. ログイン成功時 → `auth-token`クッキーが設定され、ブログページへリダイレクト
+3. 認証済みユーザーがログインページにアクセス → ブログページへ自動リダイレクト
+4. ログアウト時 → クッキーを削除し、ログインページへリダイレクト
+
+## テスト用アカウント
+
+デモ用のログイン情報：
+- メールアドレス: hoge@co.jp
+- 認証トークン: 10分で失効
+
+## 技術スタック
+
+- Next.js (App Router)
+- TypeScript
+- js-cookie (クッキー管理)
+- react-hot-toast (通知UI)
+- Tailwind CSS (スタイリング)
